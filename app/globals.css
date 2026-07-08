@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/*
+  Design read: trust-first, regulated marketplace product UI for adult
+  consumers. Clean modern language, restrained motion, moderate density.
+  Neutral zinc base + a single locked accent (deep rose). Dark by default.
+  Dials — VARIANCE 5 / MOTION 3 / DENSITY 4.
+*/
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-bg: #0b0b0f;
+  --color-surface: #16161d;
+  --color-surface-2: #1e1e27;
+  --color-border: #2a2a35;
+  --color-fg: #f4f4f6;
+  --color-muted: #a1a1ad;
+  --color-accent: #f43f7e;
+  --color-accent-fg: #ffffff;
+  --color-accent-soft: #2a1520;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  --radius: 0.75rem;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: #fafafa;
+    --color-surface: #ffffff;
+    --color-surface-2: #f4f4f5;
+    --color-border: #e4e4e7;
+    --color-fg: #18181b;
+    --color-muted: #71717a;
+    --color-accent-soft: #fce7ef;
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility helpers layered on Tailwind */
+@layer utilities {
+  .bg-bg { background-color: var(--color-bg); }
+  .bg-surface { background-color: var(--color-surface); }
+  .bg-surface-2 { background-color: var(--color-surface-2); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-accent-soft { background-color: var(--color-accent-soft); }
+  .text-fg { color: var(--color-fg); }
+  .text-muted { color: var(--color-muted); }
+  .text-accent { color: var(--color-accent); }
+  .border-app { border-color: var(--color-border); }
+  .ring-accent { --tw-ring-color: var(--color-accent); }
+}
