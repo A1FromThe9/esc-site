@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { SealCheck, Warning, CheckCircle, Circle } from "@phosphor-icons/react/dist/ssr";
 import { requireRole } from "@/lib/auth/permissions";
 import { Card, Badge } from "@/components/ui/primitives";
-import { ButtonLink } from "@/components/ui/button";
+import { ButtonLink, Button } from "@/components/ui/button";
 import {
   getMyProviderProfile,
   getProfilePhotos,
   getVerificationDocuments,
   publishChecklist,
 } from "@/lib/data/me";
+import { publishProfileAction, unpublishProfileAction } from "@/app/actions/profile";
 
 const statusTone = {
   unverified: "neutral",
@@ -96,10 +96,24 @@ export default async function ProviderHome() {
               View public profile
             </ButtonLink>
           )}
+          {ready && !profile.isLive && (
+            <form action={publishProfileAction}>
+              <Button type="submit" size="sm">
+                Publish profile
+              </Button>
+            </form>
+          )}
+          {profile.isLive && (
+            <form action={unpublishProfileAction}>
+              <Button type="submit" size="sm" variant="ghost">
+                Unpublish
+              </Button>
+            </form>
+          )}
         </div>
         {ready && !profile.isLive && (
           <p className="mt-3 text-sm text-[var(--color-success)]">
-            All set — publishing will be enabled here once the moderation step is wired up.
+            All checks pass — you can publish your profile now.
           </p>
         )}
       </Card>

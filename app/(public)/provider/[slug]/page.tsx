@@ -1,10 +1,13 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { SealCheck, MapPin, Flag, ChatCircle } from "@phosphor-icons/react/dist/ssr";
+import { SealCheck, MapPin, ChatCircle } from "@phosphor-icons/react/dist/ssr";
 import { getPublicProviderBySlug } from "@/lib/data/providers";
 import { Card, Badge } from "@/components/ui/primitives";
-import { ButtonLink } from "@/components/ui/button";
+import { ButtonLink, Button } from "@/components/ui/button";
 import { ageFromDob, formatEur } from "@/lib/utils";
+import { auth } from "@/lib/auth";
+import { startConversationAction } from "@/app/actions/messaging";
+import { ReportForm } from "@/components/report-form";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -16,6 +19,9 @@ export default async function ProviderDetailPage({
   const { slug } = await params;
   const p = await getPublicProviderBySlug(slug);
   if (!p) notFound();
+
+  const session = await auth();
+  const isClient = session?.user?.role === "client";
 
   return (
     <div className="mx-auto max-w-[1000px] px-4 py-8">
@@ -79,10 +85,22 @@ export default async function ProviderDetailPage({
               <p className="text-xs text-muted">per hour (mock)</p>
             </div>
             <div className="flex gap-2">
-              <ButtonLink href={`/login?next=/dashboard`}>
-                <ChatCircle size={16} /> Message
-              </ButtonLink>
-              <ButtonLink href={`/login?next=/dashboard`} variant="secondary">
+              {isClient ? (
+                <form action={startConversationAction}>
+                  <input type="hidden" name="providerSlug" value={p.slug} />
+                  <Button type="submit">
+                    <ChatCircle size={16} /> Message
+                  </Button>
+                </form>
+              ) : (
+                <ButtonLink href={`/login?next=/provider/${p.slug}`}>
+                  <ChatCircle size={16} /> Message
+                </ButtonLink>
+              )}
+              <ButtonLink
+                href={isClient ? `/dashboard/book/${p.slug}` : `/login?next=/dashboard/book/${p.slug}`}
+                variant="secondary"
+              >
                 Request booking
               </ButtonLink>
             </div>
@@ -134,12 +152,12 @@ export default async function ProviderDetailPage({
             </Card>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-muted">
-            <Flag size={14} />
-            <a href="/safety" className="hover:text-fg">
-              See something wrong? Reporting is available in later phases.
-            </a>
-          </div>
+          <ReportForm
+            targetType="profile"
+            targetId={p.id}
+            returnTo={`/provider/${p.slug}`}
+            label="Report this profile"
+          />
         </div>
       </div>
     </div>

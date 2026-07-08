@@ -8,6 +8,7 @@ import {
   verificationDocuments,
   moderationQueue,
   auditLog,
+  users,
 } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/permissions";
 
@@ -47,6 +48,26 @@ export async function approveVerificationAction(formData: FormData) {
 
   revalidatePath("/admin/verification");
   revalidatePath("/admin");
+}
+
+/** Suspend or reinstate a user account (trust & safety action). */
+export async function setUserStatusAction(formData: FormData) {
+  const admin = await requireRole("admin");
+  const userId = formData.get("userId") as string;
+  const status = formData.get("status") as "active" | "suspended" | "banned";
+  if (!["active", "suspended", "banned"].includes(status)) return;
+  if (userId === admin.id) return; // can't act on yourself
+
+  await db.update(users).set({ status, updatedAt: new Date() }).where(eq(users.id, userId));
+
+  await db.insert(auditLog).values({
+    actorId: admin.id,
+    action: `user.status_${status}`,
+    targetType: "user",
+    targetId: userId,
+  });
+
+  revalidatePath("/admin/users");
 }
 
 /** Reject a provider's verification with a reason. */
